@@ -38,8 +38,13 @@ func DatabasePerformanceOptimisatioins(db *sql.DB) {
 }
 
 func CallPasswordCheckQuery(db *sql.DB, email, password string) error {
+	// valid email
+	_, err := mail.ParseAddress(email)
+	if err != nil {
+		return ErrorEmailFormatting
+	}
 	var hashedPassword string
-	err := db.QueryRow(PasswordCheckQuery, email).Scan(&hashedPassword)
+	err = db.QueryRow(PasswordCheckQuery, email).Scan(&hashedPassword)
 	if err != nil {
 		return ErrorUserNotFound
 	}
@@ -77,6 +82,8 @@ func CallInsertUserQuery(
 	var count int
 	err = db.QueryRow(CheckUserExistsQuery, email).Scan(&count)
 	if err != nil {
+		return err
+	} else if count > 0 {
 		return ErrorEmailUsed
 	}
 

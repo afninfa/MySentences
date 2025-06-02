@@ -25,6 +25,10 @@ var PasswordCheckQuery = `
 SELECT password FROM users WHERE email = ?
 `
 
+var CheckUserExistsQuery = `
+SELECT COUNT(1) FROM users WHERE email = ?
+`
+
 func DatabasePerformanceOptimisatioins(db *sql.DB) {
 	db.Exec("PRAGMA journal_mode=WAL;")
 	db.Exec("PRAGMA synchronous=NORMAL;")
@@ -55,19 +59,28 @@ func CallInsertUserQuery(
 	password,
 	targetLanguage string,
 ) error {
+	// valid email
 	_, err := mail.ParseAddress(email)
 	if err != nil {
 		return ErrorEmailFormatting
 	}
 
+	// password hash
 	hashedPassword, err := bcrypt.GenerateFromPassword(
 		[]byte(password), bcrypt.DefaultCost,
 	)
-
 	if err != nil {
 		return err
 	}
 
+	// email already used?
+	var count int
+	err = db.QueryRow(CheckUserExistsQuery, email).Scan(&count)
+	if err != nil {
+		return ErrorEmailUsed
+	}
+
+	// execute query
 	_, err = db.Exec(
 		InsertUserQuery,
 		email,

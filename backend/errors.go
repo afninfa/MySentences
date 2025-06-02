@@ -9,4 +9,6 @@ var (
 		"password does not match")
 	ErrorEmailFormatting = errors.New(
 		"email address is not correctly formatted")
+	ErrorEmailUsed = errors.New(
+		"email address is already in use")
 )

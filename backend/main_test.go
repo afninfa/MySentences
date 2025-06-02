@@ -48,3 +48,34 @@ func TestAccountCreationAndLogin(t *testing.T) {
 		"password1234",
 	))
 }
+
+func TestEmailInUseCheck(t *testing.T) {
+	testFile := "./test.db"
+	db, err := sql.Open("sqlite3", testFile)
+	if err != nil {
+		t.Errorf("SQL database could not be opened")
+	}
+	defer func() {
+		db.Close()
+		os.Remove(testFile)
+	}()
+	DatabasePerformanceOptimisatioins(db)
+
+	_, err = db.Exec(CreateTableQuery)
+	if err != nil {
+		t.Errorf("CreateTableQuery failed with %v", err)
+	}
+
+	ShouldNotError(t, CallInsertUserQuery(
+		db,
+		"someone.something@somewhere.com",
+		"password1234",
+		"Spanish",
+	))
+	ShouldError(t, CallInsertUserQuery(
+		db,
+		"someone.something@somewhere.com",
+		"differentpassword1234",
+		"German",
+	))
+}

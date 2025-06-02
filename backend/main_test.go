@@ -49,7 +49,7 @@ func TestAccountCreationAndLogin(t *testing.T) {
 	))
 }
 
-func TestEmailInUseCheck(t *testing.T) {
+func TestEmailAddressChecks(t *testing.T) {
 	testFile := "./test.db"
 	db, err := sql.Open("sqlite3", testFile)
 	if err != nil {
@@ -66,6 +66,12 @@ func TestEmailInUseCheck(t *testing.T) {
 		t.Errorf("CreateTableQuery failed with %v", err)
 	}
 
+	ShouldError(t, CallInsertUserQuery(
+		db,
+		"not an email address",
+		"differentpassword1234",
+		"German",
+	))
 	ShouldNotError(t, CallInsertUserQuery(
 		db,
 		"someone.something@somewhere.com",

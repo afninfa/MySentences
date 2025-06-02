@@ -1,5 +1,6 @@
-# MySentences
-<p align="right">
-  <img src="./logo.png" alt="Project Logo" width="300">
-</p>
+<h1 align="left">
+  MySentences
+  <img src="./logo.png" alt="MySentences Logo" width="300" align="right">
+</h1>
+
 A language learning app.

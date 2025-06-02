@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"net/mail"
 
 	_ "github.com/mattn/go-sqlite3"
 	"golang.org/x/crypto/bcrypt"
@@ -48,15 +49,31 @@ func CallPasswordCheckQuery(db *sql.DB, email, password string) error {
 	return nil
 }
 
-func CallInsertUserQuery(db *sql.DB, email, password, targetLanguage string) {
-	hashedPassword := Unwrap(
-		bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost),
+func CallInsertUserQuery(
+	db *sql.DB,
+	email,
+	password,
+	targetLanguage string,
+) error {
+	_, err := mail.ParseAddress(email)
+	if err != nil {
+		return ErrorEmailFormatting
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword(
+		[]byte(password), bcrypt.DefaultCost,
 	)
-	_, err := db.Exec(
+
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(
 		InsertUserQuery,
 		email,
 		string(hashedPassword),
 		targetLanguage,
 	)
-	Expect(err)
+
+	return err
 }

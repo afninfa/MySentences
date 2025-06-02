@@ -15,7 +15,10 @@ func pingImpl(c *gin.Context) {
 
 func main() {
 
-	db := Unwrap(sql.Open("sqlite3", "./mydata.db"))
+	db, err := sql.Open("sqlite3", "./mydata.db")
+	if err != nil {
+		panic(err)
+	}
 	defer db.Close()
 
 	DatabasePerformanceOptimisatioins(db)

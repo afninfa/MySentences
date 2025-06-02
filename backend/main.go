@@ -1,13 +1,28 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"database/sql"
+
+	"github.com/gin-gonic/gin"
+	_ "github.com/mattn/go-sqlite3"
+)
+
+func pingImpl(c *gin.Context) {
+	c.JSON(200, gin.H{
+		"message": "pong",
+	})
+}
 
 func main() {
+
+	db := Unwrap(sql.Open("sqlite3", "./mydata.db"))
+	defer db.Close()
+
+	DatabasePerformanceOptimisatioins(db)
+
 	router := gin.Default()
-	router.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
-	router.Run() // listen and serve on 0.0.0.0:8080
+
+	router.GET("/ping", pingImpl)
+
+	router.Run(":8080")
 }

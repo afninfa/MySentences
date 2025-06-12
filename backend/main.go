@@ -4,11 +4,22 @@ import (
 	"database/sql"
 	"net/http"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
+
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 func pingImpl(c *gin.Context) {
+	session := sessions.Default(c)
+	if user := session.Get("user"); user == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "Unauthorised",
+		})
+		c.Abort()
+		return
+	}
 	c.JSON(200, gin.H{
 		"message": "pong",
 	})
@@ -66,7 +77,10 @@ func loginImplGen(db *sql.DB) gin.HandlerFunc {
 			})
 			return
 		}
-		// Success
+		// Success (create session)
+		session := sessions.Default(c)
+		session.Set("user", data.Email)
+		session.Save()
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Logged in successfully!",
 		})
@@ -89,6 +103,9 @@ func main() {
 	}
 
 	router := gin.Default()
+
+	store := cookie.NewStore([]byte("super-secret-key"))
+	router.Use(sessions.Sessions("MySession", store))
 
 	router.GET("/ping", pingImpl)
 	router.POST("/createAccount", createAccountImplGen(db))

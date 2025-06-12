@@ -34,7 +34,6 @@ func DatabasePerformanceOptimisatioins(db *sql.DB) {
 	db.Exec("PRAGMA synchronous=NORMAL;")
 	db.Exec("PRAGMA busy_timeout=5000;")
 	db.Exec("PRAGMA wal_autocheckpoint=1000;")
-	db.SetMaxOpenConns(1)
 }
 
 func CallPasswordCheckQuery(db *sql.DB, email, password string) error {

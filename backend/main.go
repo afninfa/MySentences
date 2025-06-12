@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
@@ -81,10 +80,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	defer func() {
-		db.Close()
-		os.Remove(fileName)
-	}()
+	defer db.Close()
 
 	DatabasePerformanceOptimisatioins(db)
 	_, err = db.Exec(CreateTableQuery)
